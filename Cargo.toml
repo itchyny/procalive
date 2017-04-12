@@ -12,3 +12,5 @@ categories = ["Command line utilities"]
 [dependencies]
 itertools = "0.6"
 libc = "0.2"
+chan = "0.1.19"
+chan-signal = "0.2"
