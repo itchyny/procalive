@@ -1,0 +1,13 @@
+[package]
+name = "procalive"
+version = "0.0.0"
+authors = ["itchyny <itchyny@hatena.ne.jp>"]
+description = "Keep your process alive!"
+repository = "https://github.com/itchyny/procalive"
+readme = "README.md"
+license = "MIT"
+keywords = []
+categories = ["Command line utilities"]
+
+[dependencies]
+itertools = "0.6"
