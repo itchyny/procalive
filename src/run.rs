@@ -26,9 +26,10 @@ fn run_proc(cmd: String) -> Result<ExitStatus> {
 fn spawn_proc(cmd: String) -> Result<Child> {
     let mut command = Command::new("sh");
     command.arg("-c").arg(cmd);
-    Ok(command.before_exec(|| {
-            let _ = unsafe { libc::setsid() };
-            Ok(())
-        })
-        .spawn()?)
+    Ok(command.before_exec(|| setsid()).spawn()?)
+}
+
+fn setsid() -> io::Result<()> {
+    let _todo = unsafe { libc::setsid() };
+    Ok(())
 }
