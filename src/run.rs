@@ -1,4 +1,4 @@
-use std::process::{Command, Child};
+use std::process::{Command, Child, ExitStatus};
 use std::os::unix::process::CommandExt;
 use itertools::Itertools;
 use libc;
@@ -12,9 +12,15 @@ pub fn run<I>(mut args: I) -> Result<()>
     if cmd.len() < 1 {
         return Err(Error::NoCommand);
     }
+    loop {
+        run_proc(cmd.clone())?;
+    }
+}
+
+fn run_proc(cmd: String) -> Result<ExitStatus> {
     let mut child = spawn_proc(cmd)?;
-    let ecode = child.wait()?;
-    Ok(())
+    let status = child.wait()?;
+    Ok(status)
 }
 
 fn spawn_proc(cmd: String) -> Result<Child> {
