@@ -11,3 +11,4 @@ categories = ["Command line utilities"]
 
 [dependencies]
 itertools = "0.6"
+libc = "0.2"
