@@ -20,7 +20,7 @@ fn main() {
     } else {
         args.into_iter().map(|s| shell_escape::escape(s.into())).join(" ")
     };
-    match run(cmd) {
+    match Runner::new(cmd).start() {
         Ok(status) => {
             status.and_then(|s| s.code()).map(|code| std::process::exit(code));
         }
