@@ -10,15 +10,13 @@ use chan_signal;
 use error::*;
 use process;
 
-pub fn run(cmd: String) -> Result<()> {
+pub fn run(cmd: String) -> Result<Option<ExitStatus>> {
     let sig = chan_signal::notify(process::all_sig().as_slice());
     loop {
         let (sig_send, sig_recv) = chan::sync(0);
         let cmd = cmd.clone();
-        let (done_send, done_recv) = chan::sync(0);
-        thread::spawn(move || {
-            println!("Exit status: {:?}", run_proc(done_send, sig_recv, cmd));
-        });
+        let (stat_send, stat_recv) = chan::sync(0);
+        thread::spawn(move || run_proc(stat_send, sig_recv, cmd));
         let mut exit = false;
         chan_select! {
             sig.recv() -> sig => {
@@ -26,23 +24,22 @@ pub fn run(cmd: String) -> Result<()> {
                 sig_send.send(sig.unwrap());
                 exit = true;
             },
-            done_recv.recv() => {
+            stat_recv.recv() => {
                 println!("Restarting...");
             }
         }
         if exit {
-            done_recv.recv();
-            return Ok(());
+            return Ok(stat_recv.recv());
         }
     }
 }
 
-fn run_proc(_: Sender<()>, sig_recv: Receiver<Signal>, cmd: String) -> Result<ExitStatus> {
+fn run_proc(stat_send: Sender<ExitStatus>, sig_recv: Receiver<Signal>, cmd: String) -> Result<()> {
     let mut child = spawn_proc(cmd)?;
     let pid = child.id() as i32;
     thread::spawn(move || sig_recv.recv().map(|sig| process::kill(-pid, sig)));
-    let status = child.wait()?;
-    Ok(status)
+    stat_send.send(child.wait()?);
+    Ok(())
 }
 
 fn spawn_proc(cmd: String) -> Result<Child> {
