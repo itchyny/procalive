@@ -10,6 +10,7 @@ keywords = []
 categories = ["Command line utilities"]
 
 [dependencies]
+clap = "2.23"
 itertools = "0.6"
 libc = "0.2"
 chan = "0.1.19"
