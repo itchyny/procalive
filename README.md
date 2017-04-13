@@ -3,7 +3,6 @@
 Currently this software is under development.
 
 ### TODO
-- Send signals correctly (currently send SIGINT).
 - Implement a killer watching stdout and stderr.
 - Implement a killer on interval.
 - Wait each after the process exits.
