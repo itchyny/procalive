@@ -1,16 +1,15 @@
-use std::io;
 use std::os::unix::process::CommandExt;
 use std::process::{Command, Child, ExitStatus};
 use std::thread;
 
 use itertools::Itertools;
-use libc;
 use chan;
 use chan::{Sender, Receiver};
 use chan_signal::Signal;
 use chan_signal;
 
 use error::*;
+use process;
 
 pub fn run<I>(mut args: I) -> Result<()>
     where I: Iterator<Item = String>
@@ -19,7 +18,7 @@ pub fn run<I>(mut args: I) -> Result<()>
     if cmd.len() < 1 {
         return Err(Error::NoCommand);
     }
-    let sig = chan_signal::notify(&[Signal::INT, Signal::TERM]);
+    let sig = chan_signal::notify(process::all_sig().as_slice());
     loop {
         let (sig_send, sig_recv) = chan::sync(0);
         let cmd = cmd.clone();
@@ -43,7 +42,7 @@ pub fn run<I>(mut args: I) -> Result<()>
 fn run_proc(_: Sender<()>, sig_recv: Receiver<Signal>, cmd: String) -> Result<ExitStatus> {
     let mut child = spawn_proc(cmd)?;
     let pid = child.id() as i32;
-    thread::spawn(move || sig_recv.recv().map(|sig| kill(-pid, sig)));
+    thread::spawn(move || sig_recv.recv().map(|sig| process::kill(-pid, sig)));
     let status = child.wait()?;
     Ok(status)
 }
@@ -51,15 +50,5 @@ fn run_proc(_: Sender<()>, sig_recv: Receiver<Signal>, cmd: String) -> Result<Ex
 fn spawn_proc(cmd: String) -> Result<Child> {
     let mut command = Command::new("sh");
     command.arg("-c").arg(cmd);
-    Ok(command.before_exec(|| setsid()).spawn()?)
-}
-
-fn kill(pid: i32, sig: Signal) -> io::Result<()> {
-    let _todo = unsafe { libc::kill(pid, 2) }; // todo: sig.as_sig()
-    Ok(())
-}
-
-fn setsid() -> io::Result<()> {
-    let _todo = unsafe { libc::setsid() };
-    Ok(())
+    Ok(command.before_exec(|| process::setsid()).spawn()?)
 }
