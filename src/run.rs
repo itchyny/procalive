@@ -19,15 +19,20 @@ pub fn run(cmd: String) -> Result<()> {
         thread::spawn(move || {
             println!("Exit status: {:?}", run_proc(done_send, sig_recv, cmd));
         });
+        let mut exit = false;
         chan_select! {
             sig.recv() -> sig => {
                 println!("Received: {:?}", sig);
                 sig_send.send(sig.unwrap());
-                return Ok(())
+                exit = true;
             },
             done_recv.recv() => {
                 println!("Restarting...");
             }
+        }
+        if exit {
+            done_recv.recv();
+            return Ok(());
         }
     }
 }
