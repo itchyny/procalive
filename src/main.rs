@@ -20,5 +20,13 @@ fn main() {
     } else {
         args.into_iter().map(|s| shell_escape::escape(s.into())).join(" ")
     };
-    println!("{:?}", run(cmd));
+    match run(cmd) {
+        Ok(status) => {
+            status.and_then(|s| s.code()).map(|code| std::process::exit(code));
+        }
+        Err(err) => {
+            println!("{:?}", err);
+            std::process::exit(2);
+        }
+    }
 }
