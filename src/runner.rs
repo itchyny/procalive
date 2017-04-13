@@ -13,11 +13,15 @@ use process;
 #[derive(Clone)]
 pub struct Runner {
     cmd: String,
+    interval: Option<u32>,
 }
 
 impl Runner {
-    pub fn new(cmd: String) -> Runner {
-        Runner { cmd: cmd }
+    pub fn new(cmd: String, interval: Option<u32>) -> Runner {
+        Runner {
+            cmd: cmd,
+            interval: interval,
+        }
     }
 
     pub fn start(&self) -> Result<Option<ExitStatus>> {
@@ -25,7 +29,7 @@ impl Runner {
         loop {
             let (sig_send, sig_recv) = chan::sync(0);
             let (stat_send, stat_recv) = chan::sync(0);
-            let tick = chan::tick_ms(10 * 60 * 1000);
+            let tick = chan::tick_ms(self.interval.unwrap_or(0));
             let self_clone = self.clone();
             thread::spawn(move || self_clone.run_proc(stat_send, sig_recv));
             let mut exit = false;
