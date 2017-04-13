@@ -5,7 +5,7 @@ use itertools::Itertools;
 extern crate shell_escape;
 
 extern crate procalive;
-use procalive::run::*;
+use procalive::runner::*;
 
 fn main() {
     let matches = clap_app!(procalive =>
