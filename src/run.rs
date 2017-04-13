@@ -2,7 +2,6 @@ use std::os::unix::process::CommandExt;
 use std::process::{Command, Child, ExitStatus};
 use std::thread;
 
-use itertools::Itertools;
 use chan;
 use chan::{Sender, Receiver};
 use chan_signal::Signal;
@@ -11,13 +10,7 @@ use chan_signal;
 use error::*;
 use process;
 
-pub fn run<I>(mut args: I) -> Result<()>
-    where I: Iterator<Item = String>
-{
-    let cmd = args.join(" ");
-    if cmd.len() < 1 {
-        return Err(Error::NoCommand);
-    }
+pub fn run(cmd: String) -> Result<()> {
     let sig = chan_signal::notify(process::all_sig().as_slice());
     loop {
         let (sig_send, sig_recv) = chan::sync(0);
