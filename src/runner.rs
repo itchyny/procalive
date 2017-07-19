@@ -38,7 +38,6 @@ impl Runner {
                     sig_send.send(Signal::INT);
                 },
                 sig.recv() -> sig => {
-                    println!("Received: {:?}", sig);
                     sig_send.send(sig.unwrap());
                     exit = true;
                 },
