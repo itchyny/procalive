@@ -15,9 +15,7 @@ fn main() {
         (@arg INTERVAL: --interval +takes_value "The interval (in seconds) to restart the process.")
         (@arg COMMAND: +required +multiple "Command to execute."))
         .get_matches();
-    let interval_msec: Option<u32> = matches.value_of("INTERVAL")
-        .and_then(|x| x.parse().ok())
-        .map(|sec: f64| (sec * 1000.0) as u32);
+    let interval_msec: Option<u32> = matches.value_of("INTERVAL").and_then(|x| x.parse().ok()).map(|sec: f64| (sec * 1000.0) as u32);
     let args: Vec<&str> = matches.values_of("COMMAND").unwrap().collect();
     let cmd = if args.len() == 1 {
         args[0].into()

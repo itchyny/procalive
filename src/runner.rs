@@ -1,9 +1,9 @@
 use std::os::unix::process::CommandExt;
-use std::process::{Command, Child, ExitStatus};
+use std::process::{Child, Command, ExitStatus};
 use std::thread;
 
 use chan;
-use chan::{Sender, Receiver};
+use chan::{Receiver, Sender};
 use chan_signal::Signal;
 use chan_signal;
 
